@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { findNodeHandle, LogBox } from "react-native";
+import { LogBox } from "react-native";
 import Animated, {
   useDerivedValue,
   useSharedValue,
@@ -48,16 +48,20 @@ function NestableDraggableFlatListInner<T>(
   });
 
   const onListContainerLayout = useStableCallback(async ({ containerRef }) => {
-    const nodeHandle = findNodeHandle(scrollableRef.current);
+    const scrollNode = scrollableRef.current;
+    const containerNode = containerRef.current;
+
+    if (!scrollNode || !containerNode) return;
 
     const onSuccess = (_x: number, y: number) => {
       listVerticalOffset.value = y;
     };
+
     const onFail = () => {
       console.log("## nested draggable list measure fail");
     };
-    //@ts-ignore
-    containerRef.current.measureLayout(nodeHandle, onSuccess, onFail);
+
+    containerRef.current.measureLayout(scrollNode, onSuccess, onFail);
   });
 
   const onDragBegin: DraggableFlatListProps<T>["onDragBegin"] = useStableCallback(
